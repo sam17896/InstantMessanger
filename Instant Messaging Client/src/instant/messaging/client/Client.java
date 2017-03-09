@@ -5,46 +5,22 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
-public class Client extends JFrame{
-    private JTextField message;
-    public JTextField ipAddress;
-    private JTextArea chatThread;
+public class Client{
+    
     private ObjectOutputStream output;
     private ObjectInputStream input;
     private String msg = "";
     public String serverIP;
     private Socket connection;
-    
-    public Client(String host){
-        super("Client");
-        serverIP = host;
-        message = new JTextField();
-        message.setEditable(false);
-        message.addActionListener(
-                new ActionListener(){
-                    public void actionPerformed(ActionEvent e){
-                        sendMessage(e.getActionCommand());
-                        message.setText("");
-                    }
-                }
-        );
-        chatThread = new JTextArea();
-        Dimension dc = new Dimension(500,450);
-        Dimension m = new Dimension(400,50);
-        chatThread.setMinimumSize(dc);
-        chatThread.setPreferredSize(dc);
-        chatThread.setMaximumSize(dc);
-        message.setPreferredSize(m);
-        add(message,BorderLayout.SOUTH);
-        add(chatThread);
-        add(new JScrollPane(chatThread), BorderLayout.CENTER);
-        setSize(500,500);
-        setVisible(true);
-
-    }
+    boolean connect = false;
     
     void runClient(){
-        try{
+    while(!connect){    
+         System.out.print("");  
+    }
+    try{
+            ClientForm.jTextField1.setText("");
+            ClientForm.jTextField1.setEditable(false);
             connectToServer();
             setupStreams();
             whileChatting();
@@ -55,7 +31,7 @@ public class Client extends JFrame{
         }finally{
             System.out.println("close");
             close();
-        }   
+        }
     }
 
     private void connectToServer() throws IOException{
@@ -95,13 +71,13 @@ public class Client extends JFrame{
         }
     }
 
-    private void sendMessage(String message) {
+    public void sendMessage(String message) {
         try{
           output.writeObject("CLIENT - " + message);
           output.flush();
           showMessage("\nCLIENT - " + message);
        }catch(IOException e){
-           chatThread.append("\n Error: can't send message \n");
+           ClientForm.jTextArea1.append("\n Error: can't send message \n");
        }
     }
 
@@ -109,7 +85,7 @@ public class Client extends JFrame{
         SwingUtilities.invokeLater(
                  new Runnable(){
                      public void run(){
-                         chatThread.append(m);
+                         ClientForm.jTextArea1.append(m);
                      }
                  }
         );
@@ -119,7 +95,7 @@ public class Client extends JFrame{
         SwingUtilities.invokeLater(
                 new Runnable(){
                     public void run(){
-                        message.setEditable(b);
+                        ClientForm.jTextField2.setEditable(b);
                     }
                 }
         );

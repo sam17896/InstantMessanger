@@ -1,51 +1,26 @@
 package instant.messaging;
-import java.io.*;
-import java.net.*;
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
 
-public class Server extends JFrame{
-    private JTextField message;
-    private JTextArea chatThread;
+import java.io.EOFException;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.ServerSocket;
+import java.net.Socket;
+
+public class Server {
     private ObjectOutputStream output;
     private ObjectInputStream input;
     private ServerSocket server;
     private Socket connection;
-    
-    public Server(){
-        super("Server");
-        message = new JTextField();
-        message.setEditable(false);
-        message.addActionListener(
-                new ActionListener(){
-                    public void actionPerformed(ActionEvent e){
-                        sendMessage(e.getActionCommand());
-                        message.setText("");
-                    }
-                }
-        );
-        chatThread = new JTextArea();
-        Dimension dc = new Dimension(500,450);
-        Dimension m = new Dimension(400,50);
-        chatThread.setMinimumSize(dc);
-        chatThread.setPreferredSize(dc);
-        chatThread.setMaximumSize(dc);
-        message.setPreferredSize(m);
-        add(message,BorderLayout.SOUTH);
-        add(chatThread);
-        add(new JScrollPane(chatThread), BorderLayout.CENTER);
-        setSize(500,500);
-        setVisible(true);
-
-    }
-    
+    boolean start = false;
+    int count = 0;
     public void runServer(){
         try{
             server = new ServerSocket(6789, 100);
             while(true){
+                System.out.print("");
+                if(start){
                 try{
-                    System.out.println("waiting");
                     waitForConnection();
                     setupStreams();
                     whileChatting();
@@ -57,25 +32,20 @@ public class Server extends JFrame{
                     close();
                 }
             }
+            }
         }catch(IOException io){
             io.printStackTrace(); 
         }
     }
     private void waitForConnection() throws IOException{
-        System.out.println("waiting...");
         showMessage(" Waiting for someone to connect...\n");
         connection = server.accept();
         showMessage(" Now connected to " + connection.getInetAddress().getHostName());
     }
  
     private void showMessage(final String text) {
-        SwingUtilities.invokeLater(
-                 new Runnable(){
-                     public void run(){
-                         chatThread.append(text);
-                     }
-                 }
-        );
+        ServerForm.jTextArea1.append(text);
+        
     }
 
     private void setupStreams() throws IOException {
@@ -111,23 +81,19 @@ public class Server extends JFrame{
         }
     }
 
-    private void ableToType(final boolean b) {
-        SwingUtilities.invokeLater(
-                new Runnable(){
-                    public void run(){
-                        message.setEditable(b);
-                    }
-                }
-        );
+    public void ableToType(final boolean b) {
+        ServerForm.jTextField1.setEditable(b);
+       
     }
 
-    private void sendMessage(String message) {
+    public void sendMessage(String message) {
        try{
           output.writeObject("SERVER - " + message);
           output.flush();
           showMessage("\nSERVER - " + message);
        }catch(IOException e){
-           chatThread.append("\n Error: can't send message \n");
+           ServerForm.jTextArea1.append("\n Error: can't send message \n");
        }
     }
-}  
+        
+}
